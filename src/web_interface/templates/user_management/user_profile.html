@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% set active_page = "Login" %}
+
+{% block body %}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8 mt-4">
+        <h3 class="mb-3">Profile of {{ user.email }}</h3>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <table class="table table-bordered">
+            <tr>
+                <th width="120px" style="text-align: right;">Username</th>
+                <td>{{ user.email }}</td>
+            </tr>
+            <tr>
+                <th style="text-align: right;">API Key</th>
+                <td>{{ user.api_key }}</td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<!-- user change own password -->
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <button type="button" class="btn btn-primary mx-auto" data-toggle="modal" data-target="#user_change_password_modal">Change Password</button>
+
+        <div id="user_change_password_modal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+
+                    <div class="modal-header d-flex justify-content-between align-items-center">
+                        <h5 class="modal-title">Change user password</h5>
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <form method="post">
+
+                            <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                </div>
+                                <input id="password1" type="password" class="form-control" name="old_password" placeholder="old password" required>
+                            </div>
+
+                            <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                </div>
+                                <input id="user_change_password" type="password" class="form-control" name="new_password" placeholder="new password" required>
+                            </div>
+
+                            <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                </div>
+                                <input id="password2" type="password" class="form-control" name="new_password_confirm" placeholder="confirm new password" required>
+                            </div>
+
+                            <button class="btn btn-primary" type="submit" id="user_change_password_button" value="user_change_password">Submit</button>
+
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
