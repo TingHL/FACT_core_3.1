@@ -1,0 +1,445 @@
+{% extends "base.html" %}
+
+{% set active_page = "Database" %}
+
+{% macro button_collapse(button_id, icon, target, tooltip) %}
+    <button id="{{ button_id }}" data-toggle="collapse" data-target="#{{ target }}" class="btn btn-outline-secondary">
+        <i class="fas fa-{{ icon }}" data-toggle="tooltip" data-placement="bottom" title="{{ tooltip }}"></i>
+    </button>
+{% endmacro %}
+
+{% macro button_tooltip(tooltip, id, url, icon, onclick=None, danger=False) %}
+    {% set button_class = "btn-danger" if danger else "btn-outline-secondary" %}
+    {% set onclick_value = onclick if onclick else "window.location.href = '" + url + firmware.uid + "'" %}
+
+    <button id="{{ id }}" class="btn {{ button_class }}" onclick="{{ onclick_value }}" data-toggle="tooltip" data-placement="bottom" title="{{ tooltip }}">
+        <i class="fas fa-{{ icon }}"></i>
+    </button>
+{% endmacro %}
+
+
+{% block head %}
+	{# jstree import #}
+    <link rel="stylesheet" href="{{ url_for('static', filename='web_js/jstree/dist/themes/default/style.min.css') }}" />
+    <script type="text/javascript" src="{{ url_for('static', filename='web_js/jstree/dist/jstree.min.js') }}"></script>
+
+    {# highlight.js import #}
+    <script src="{{ url_for('static', filename='highlight.js/highlight.pack.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='highlight.js/styles/github.css') }}" />
+
+    {# line_numbering.js import #}
+    <script type="text/javascript" src="{{ url_for('static', filename='js/line_numbering.js') }}"></script>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/line_numbering.css') }}" />
+{% endblock %}
+
+
+{% block body %}
+
+<div class="row justify-content-between mt-4">
+    <div class="col-lg-6">
+
+        {# Button section #}
+        <div class="btn-toolbar mb-4" role="toolbar" aria-label="Analysis, download and admin buttons">
+
+            <div class="btn-group mr-2 mb-2" role="group" aria-label="Download buttons">
+                <button class="btn btn-secondary">Download</button>
+
+                {{ button_tooltip('Download raw file', 'bdown-button', '/download/', 'file-download') }}
+                {% if firmware.files_included %}
+                    {{ button_tooltip('Download included files as tar.gz', 'tdown-button', '/tar-download/', 'file-archive') }}
+                {% endif %}
+                {% if firmware.vendor %}
+                    {{ button_tooltip('Download report as PDF', 'pdown-button', '/pdf-download/', 'file-pdf') }}
+                {% endif %}
+            </div>
+
+            <div class="btn-group mr-2 mb-2" aria-label="Analysis buttons">
+                <button class="btn btn-secondary">Analysis</button>
+
+                {{ button_tooltip('View in radare', 'radare-button', None, 'terminal', onclick='radare_view()') }}
+                {% if firmware.vendor %}
+                    {{ button_tooltip('Update analysis', 'update-button', '/update-analysis/', 'redo-alt') }}
+                    {{ button_tooltip('YARA search', 'yara-button', '/database/binary_search?firmware_uid=', 'search') }}
+                {% endif %}
+            </div>
+
+            {% if firmware.vendor and user_has_admin_clearance %}
+                <div class="btn-group mr-2 mb-2" role="group" aria-label="Admin buttons">
+                    <button class="btn btn-secondary">Admin</button>
+
+                    {{ button_collapse('redo-button', 'redo-alt', 'redo-button-div', 'Redo analysis') }}
+                    <span class="collapse" id="redo-button-div">
+                        {{ button_tooltip('Confirm removal of current results and comments', 'confirm-redo', '/admin/re-do_analysis/', 'check', danger=True) }}
+                    </span>
+
+                    <span class="collapse" id="delete-button-div">
+                        {{ button_tooltip('Confirm removal of results and comments', 'confirm-delete', '/admin/delete/', 'check', danger=True) }}
+                    </span>
+                    {{ button_collapse('delete-button', 'trash-alt', 'delete-button-div', 'Delete firmware') }}
+                </div>
+
+            {% endif %}
+            <div class="btn-group d-flex align-items-start">
+                <div class="btn btn-secondary">Comparisons</div>
+                {% if known_comparisons %}
+                    {{ button_collapse('old-compare-button', 'hdd', 'known-comparisons', 'Show list of known comparisons') }}
+                {% endif %}
+                {% if not uids_for_comparison or uid not in uids_for_comparison %}
+                    {{ button_tooltip('Add to comparison', 'add-compare', '/comparison/add/', 'plus') }}
+                {% endif %}
+
+                {% if uids_for_comparison %}
+                    {{ button_collapse('new-compare-button', 'list-ul', 'comparison-list', 'Show firmware selected for comparison') }}
+                {% endif %}
+            </div>
+        </div>
+
+        {# Header section #}
+        <div class="header mb-4" style="word-wrap: break-word">
+            <h3>
+                {{ firmware.get_hid(root_uid=root_uid) }}<br />
+                {% if firmware.analysis_tags or firmware.tags %}
+                    {{ firmware.analysis_tags | render_analysis_tags | safe }} {{ firmware.tags | render_tags | safe }}<br />
+                {% endif %}
+                <span style="font-size: 15px"><strong>UID:</strong> {{ uid | safe }}</span>
+            </h3>
+            {% if all_analyzed_flag %}
+                <div class="alert alert-warning">
+                    <strong>Warning!</strong> Not all included files are fully analyzed yet! Only analyzed files are shown.
+                </div>
+            {% endif %}
+        </div>
+
+    </div>
+
+    {# General info section #}
+    <div class="col-lg-6">
+        {{ firmware | render_general_information(firmware_including_this_fo, other_versions, selected_analysis) | safe }}
+    </div>
+
+</div>
+
+
+{% if uids_for_comparison or known_comparisons %}
+<div class="row justify-content-start mt-3 mb-2">
+    <div class="col-auto collapse" id="known-comparisons">
+        <div class="card float-right" style="width: auto; max-width: 650px;">
+            <div class="card-header text-center" style="font-size: larger">List of comparisons containing the displayed firmware</div>
+            <div class="card-body">
+                {% for comparison in known_comparisons %}
+                    <div class="col-xs-12 mb-1">
+                        <span type="button" class="btn btn-primary btn-sm" onclick="location.href='/compare/{{ comparison[0]}}'">{{ comparison[0] | replace_comparison_uid_with_hid | safe  }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="collapse m-0" id="comparison-list">
+        <div class="jumbotron float-right mx-2 mb-0 p-3" style="width: auto; max-width: 650px;">
+            <span class="mt-0 text-center" style="font-size: larger">Firmware Selected for Comparison</span>
+            <hr style="margin: 12px">
+            <table>
+                <tr>
+                    <td style="width: 10px; vertical-align: top;">
+                        {% for compare_uid in uids_for_comparison %}
+                            <div class="col-xs-12 p-0">
+                                <span class="m-0" style="padding: 2px; display: inline-flex;">
+                                    <span class="close" style="font-size: 20px" onclick="location.href='/comparison/remove/{{ uid }}/{{ compare_uid }}'">
+                                        &times;
+                                    </span>
+                                    <span class="tag badge badge-{% if compare_uid == uid %}primary{% else %}secondary{% endif %}" style="margin-left: 3px">{{ compare_uid |replace_uid_with_hid | safe }}</span>
+                                </span>
+                            </div>
+                        {% endfor %}
+                    </td>
+                    {% if uids_for_comparison|length > 1 %}
+                        <td style="width: 180px; vertical-align: top;">
+                            <div class="col-xs-12" style="padding: 2px;">
+                                <button type="button" class="btn btn-secondary btn-sm" onclick="location.href='/comparison/remove_all/{{ uid }}'" style="width: 100%">
+                                    <i class="fas fa-ban"></i> Remove All
+                                </button>
+                            </div>
+                            <div class="col-xs-12" style="padding: 2px;">
+                                <button type="button" id="start_compare_button" class="btn btn-secondary btn-sm" style="width: 100%">
+                                    <i class="fas fa-copy"></i> Compare
+                                </button>
+                            </div>
+                            <div class="form-group col-xs-12 m-0">
+                                <div class="checkbox m-0" style="margin-left: 30px; text-align: center">
+                                    <label style="padding: 2px">
+                                        <input type="checkbox" value="true" id="recompare_checkbox" style="margin-top: 2px;"> Force Recompare
+                                    </label>
+                                </div>
+                            </div>
+                            <script>
+                                function start_compare(){
+                                    var checkbox = document.getElementById('recompare_checkbox');
+                                    var link = '/compare';
+                                    if (checkbox.checked) link += '?force_recompare=true';
+                                    location.href = link;
+                                };
+                                document.getElementById("start_compare_button").onclick = start_compare;
+                            </script>
+                        </td>
+                    {% endif %}
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+    {# File tree section #}
+    <div class="row">
+        <div class="col-lg-12">
+            <table class="table table-sm">
+                <thead>
+                    <tr class="thead-light">
+                        <th>File Tree</th>
+                    </tr>
+                </thead>
+                <tbody style="font-size: 14px;">
+                    <tr>
+                        <td>
+                            <div id="fileTreeAjax"></div>
+                            <script>
+                                $('#fileTreeAjax')
+                                    // generate links to the analysis page
+                                    .on("activate_node.jstree", function(e,data){window.location.href = data.node.a_attr.href;})
+                                    // generate file tree
+                                    .jstree({
+                                        "core" : {
+                                            'data' : {
+                                                'url' : function (node) {
+                                                    return node.id === '#' ?
+                                                        "/ajax_root/{{ uid | safe }}/{{ root_uid | safe }}" : "/ajax_tree/" + node["data"]["uid"] + "/{{ root_uid|safe }}";
+                                                }
+                                            }
+                                        },
+                                        "plugins" : [ "sort" ]
+                                    });
+                            </script>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {# Select analysis section #}
+    <div class="row">
+        <div class="col-lg-2">
+            <table class="table table-sm table-hover">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Analysis Results</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for analysis_plugin in firmware.processed_analysis | sort %}
+                        <tr>
+                            <td class="clickable mx-1 my-2 {{ 'table-primary' if analysis_plugin == selected_analysis else '' }}" data-toggle="tooltip" title="{{ analysis_plugin_dict.get(analysis_plugin, ['not available'])[0] | safe }}" onclick="location.href='/analysis/{{ uid|safe }}/{{analysis_plugin}}/ro/{{ root_uid }}'">
+                                {{ analysis_plugin | replace_underscore }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    <tr>
+                        <td class="table-head-light clickable" data-toggle="modal" data-target="#add_single_file_analysis_modal">
+                            <i class="fas fa-play-circle"></i> Run additional analysis
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        {# add single file analysis modal #}
+        <div id="add_single_file_analysis_modal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+
+                    <div class="modal-header d-flex justify-content-between align-items-center">
+                        <h5 class="modal-title">Add analysis to file</h5>
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <form class="form-horizontal" action="" method=post enctype=multipart/form-data>
+                            <p>Add new analysis</p>
+                            {% for system in available_plugins.unused | sort %}
+                                <label class="checkbox-inline" data-toggle="tooltip" title="{{ analysis_plugin_dict[system][0] | safe }}" style="display: block">
+                                    <input type=checkbox name="analysis_systems" value="{{ system }}" unchecked>&nbsp;{{ system | replace_underscore }}<br />
+                                </label>
+                            {% endfor %}
+                            <hr />
+                            <p>Update analysis</p>
+                            {% for system in available_plugins.used | sort %}
+                                <label class="checkbox-inline" data-toggle="tooltip" title="{{ analysis_plugin_dict[system][0] | safe }}" style="display: block">
+                                    <input type=checkbox name="analysis_systems" value="{{ system }}" unchecked>&nbsp;{{ system | replace_underscore }}<br />
+                                </label>
+                            {% endfor %}
+                            <hr />
+                            <button class="btn btn-primary" type="submit" id="add_single_file_analysis" value=submit><i class="fas fa-play-circle"></i> Add</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# Showing analysis section #}
+
+        {% block complete_analysis_block %}
+
+            <div class="col-lg-10">
+                {% block analysis_result %}
+                {% endblock %}
+
+                {# summary of included files #}
+                {%- if firmware.vendor and selected_analysis -%}
+                    <div id="summary-div">
+                        <div id="loading-summary-gif" style="display: block; border: 1px solid #dddddd; padding: 5px; text-align: center">
+                            <img src="{{ url_for("static", filename = "Pacman.gif") }}" alt="loading gif">
+                            <p>Generating summary of included files...</p>
+                        </div>
+                    </div>
+                    <script>
+                        function hide_summary_gif() {
+                            const loading_gif = document.getElementById("loading-summary-gif");
+                            loading_gif.style.display = "none";
+                        }
+                        function load_summary(){
+                            $("#summary-div").load("/ajax_get_summary/{{ uid|safe }}/{{ selected_analysis }}", hide_summary_gif);
+                        }
+                        $(document).ready(function() {
+                            load_summary();
+                        });
+                    </script>
+                {%- endif -%}
+            </div>
+
+        {% endblock %}
+
+        {# preview section #}
+        {%- if "file_type" in firmware.processed_analysis -%}
+            {%- set previewable_mime_types = [] -%}
+            {%- if firmware.processed_analysis["file_type"]['mime'] in previewable_mime_types
+                    or firmware.processed_analysis["file_type"]['mime'][0:5] == "text/"
+                    or firmware.processed_analysis["file_type"]['mime'][0:6] == "image/" %}
+
+                <div class="col-lg-12">
+                    <div class="list-group">
+                        <button id="preview_button" data-toggle="collapse" data-target="#preview-div" class="list-group-item list-group-item-primary">
+                            Show Preview
+                        </button>
+                        <div id="preview-div" class="collapse">
+                            <div id="preview-loading-gif" style="display: block; border: 1px solid #dddddd; padding: 5px; text-align: center">
+                                <img src="{{ url_for("static", filename = "Pacman.gif") }}" alt="loading...">
+                            </div>
+                        </div>
+                        <script>
+                            const loading_gif = document.getElementById("preview-loading-gif");
+                            function init_preview() {
+                                hide_gif();
+                                highlight_code();
+                            }
+                            function hide_gif() {
+                                loading_gif.style.display = "none";
+                            }
+                            function highlight_code() {
+                                const block = $('div#preview-div pre')[0];
+                                hljs.highlightBlock(block);
+                                line_numbering();
+                            }
+                            function load_preview(){
+                                loading_gif.style.display = "block";
+                                document.getElementById("preview_button").onclick = function() {return false;};
+                                $("#preview-div").load("/ajax_get_binary/{{ firmware.processed_analysis["file_type"]["mime"].replace("/", "_") }}/{{ uid|safe }}", init_preview);
+                            }
+                            document.getElementById("preview_button").onclick = load_preview;
+                        </script>
+                    </div>
+                </div>
+
+            {% endif %}
+        {% endif %}
+    </div>
+
+    {# comment section #}
+    <div class="row">
+
+        <div class="col-lg-12" style="margin-top: 20px">
+            <table class="table table-bordered mb-0" id="comments-head">
+                <thead class="thead-light">
+                    <tr>
+                        <th>
+                            Comments
+                            {# Add Comment Button #}
+                            <form action="/comment/{{ firmware.uid }}" style="float: right; margin-right: 5px;">
+                                <button class="btn btn-primary btn-sm" type="submit">
+                                    <i class="far fa-edit"></i> add comment
+                                </button>
+                            </form>
+
+                            {# Show Comments Button #}
+                            <form onsubmit="return false;" style="float: right; margin-right: 5px;">
+                                <button data-toggle="collapse" data-target="#comments" class="btn btn-primary btn-sm"
+                                {% if firmware.comments | length == 0 %} disabled {% endif %}>
+                                    <span class="badge">{{ firmware.comments | length }}</span> show comments
+                                </button>
+                            </form>
+                        </th>
+                    </tr>
+                </thead>
+            </table>
+            {% if firmware.comments %}
+            <div class="collapse m-0" id="comments">
+                <table class="table table-bordered p-0 mb-0" id="comments-table">
+                    <tbody>
+                        {% for comment in firmware.comments|sort_comments %}
+                        <tr>
+                            <td width="20%" valign="bottom">
+                                <div>{{ comment.author }}</div>
+                                <div>{{ comment.time|int|nice_unix_time }}</div>
+                            </td>
+                            <td width="80%">
+                                <span style="font-family: monospace; color: #000; font-size: 14px">
+                                    {{ comment.comment | urlize }}
+                                </span>
+                            </td>
+                            <td class="m-0 p-0 align-middle">
+                                {# Comment Delete Button #}
+                                <button data-toggle="collapse" data-target="#delete-button-div-{{ comment.time }}" class="btn btn-sm">
+                                    <i class="fas fa-trash-alt text-danger"></i>
+                                </button>
+                            </td>
+                            <td class="m-0 p-0">
+                                {# Comment Delete Confirm Button #}
+                                <div class="collapse" id="delete-button-div-{{ comment.time }}">
+                                    <button class="btn btn-danger" type="button" onclick='window.location.href = "/admin/delete_comment/{{ uid }}/{{ comment.time }}";'>
+                                        <i class="fas fa-check"></i> Click here to confirm!
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+        </div>
+
+    </div>
+
+    <script>
+        function radare_view() {
+            let radare_form = document.createElement('form');
+            radare_form.action = '/radare-view/{{ firmware.uid }}';
+            radare_form.target = '_blank';
+            radare_form.method = 'GET';
+
+            document.body.append(radare_form);
+            radare_form.submit();
+        }
+    </script>
+
+{% endblock %}

@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% set active_page = "Database" %}
+
+
+{% block styles %}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/pagination.css') }}">
+<style>
+    .vcenter {
+        vertical-align: bottom;
+    }
+</style>
+{% endblock %}
+
+
+{% block body %}
+<script type="text/javascript" src="{{ url_for('static', filename='js/update_url_variables.js') }}"></script>
+
+<div class="row justify-content-center">
+    <div class="col-xl-6 col-lg-8 col-md-10 mt-4">
+        <h3 class="mb-3">Browse Firmware Comparisons</h3>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-xl-6 col-lg-8 col-md-10 mt-4">
+
+        <table class="table table-sm table-hover">
+            {% for id, hids, submission_date in compare_list %}
+                <tr>
+                    {% if pagination is defined %}
+                        <th>{{ loop.index + (page - 1) * per_page }}</th>
+                    {% endif %}
+                    <td class="clickable" onclick="location.href='/compare/{{ id }}'">
+                        {%  for uid in hids %}
+                            <span class="mb-1">{{ hids[uid] }}</span><br />
+                            <span style="font-family: monospace; font-size:11px">{{ uid }}</span><br />
+                        {% endfor %}
+                    </td>
+                </tr>
+            {% else %}
+                <h4>No comparisons found in database!</h4>
+            {% endfor %}
+        </table>
+
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div style="max-width: 300px;">
+        {% if pagination is defined %}
+            {{ pagination.info }}
+            {{ pagination.links }}
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
