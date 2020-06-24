@@ -2,22 +2,29 @@
 ## 说明 
 
 安装时无需访问墙外资源 速度较慢   
+已经将资源安装在http://112.126.82.245/files/ 和码云上    
+到期时间:2021-4-6
 
-删除了linter、oms插件   
+## 安装建议   
 
-## 建议 
+安装步骤按照[FACT的安装步骤](https://github.com/fkie-cad/FACT_core/blob/master/INSTALL.md)进行
 
-- 更改pip源
+- npm 国内源  
+  https://www.cnblogs.com/baby123/p/10753728.html
 
-https://blog.csdn.net/lambert310/article/details/52412059
 
-linux下，修改 ~/.pip/pip.conf (没有就创建一个)， 修改 index-url至tuna，内容如下：
 
-​        [global]
-
-​       index-url = https://pypi.tuna.tsinghua.edu.cn/simple
+- 更改pip源  
+    https://www.jianshu.com/p/ac4df573b9d9
 
 - docker 镜像加速器
 
-https://help.aliyun.com/document_detail/60750.html
+    在安装运行完 ./pre_install.sh之后,使用阿里云镜像加速器服务  
+    https://yq.aliyun.com/articles/29941  
+    https://help.aliyun.com/document_detail/60750.html
 
+- 其他
+```
+sudo apt-get install openssl
+sudo apt-get install libssl-dev
+```
