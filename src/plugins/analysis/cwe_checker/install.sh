@@ -18,7 +18,8 @@ else
 
     echo "Checking out cwe_checker"
     rm -fR internal
-    git clone https://github.com/fkie-cad/cwe_checker.git internal
+    git clone https://gitee.com/litinghui/cwe_checker.git internal 
+    # git clone https://github.com/fkie-cad/cwe_checker.git internal
 
     echo "Building docker container"
     (cd internal && docker build --build-arg=http{,s}_proxy --build-arg=HTTP{,S}_PROXY -t cwe-checker .) || exit 1

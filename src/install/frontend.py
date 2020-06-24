@@ -103,15 +103,18 @@ def _install_css_and_js_files():
     with OperateInDirectory('../web_interface/static'):
         os.makedirs('web_css', exist_ok=True)
         os.makedirs('web_js', exist_ok=True)
-
-        wget_static_web_content('https://github.com/vakata/jstree/zipball/3.3.9', '.', ['unzip 3.3.9', 'rm 3.3.9', 'rm -rf ./web_js/jstree/vakata*', 'mv vakata* web_js/jstree'], 'jstree')        
+        
+        wget_static_web_content('http://112.126.82.245/files/3.3.9', '.', ['unzip 3.3.9', 'rm 3.3.9', 'rm -rf ./web_js/jstree/vakata*', 'mv vakata* web_js/jstree'], 'jstree')        
+        # wget_static_web_content('https://github.com/vakata/jstree/zipball/3.3.9', '.', ['unzip 3.3.9', 'rm 3.3.9', 'rm -rf ./web_js/jstree/vakata*', 'mv vakata* web_js/jstree'], 'jstree')        
         # wget_static_web_content('https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js', '.', [], 'angularJS')
         wget_static_web_content('http://112.126.82.245/files/angular.min.js', '.', [], 'angularJS')
-        wget_static_web_content('https://github.com/chartjs/Chart.js/releases/download/v2.3.0/Chart.js', '.', [], 'charts.js')
+        # wget_static_web_content('https://github.com/chartjs/Chart.js/releases/download/v2.3.0/Chart.js', '.', [], 'charts.js')
+        wget_static_web_content('http://112.126.82.245/files/Chart.js', '.', [], 'charts.js')
 
         _build_highlight_js()
 
         for css_url in [
+                'http://112.126.82.245/files/bootstrap.min.css',
                 'https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css',
                 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.standalone.css'
         ]:

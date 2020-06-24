@@ -57,7 +57,8 @@ def main(distribution):  # pylint: disable=too-many-statements
     apt_install_packages('libmagic-dev')
     apt_install_packages('libfuzzy-dev')
     apt_install_packages('python3-tlsh')
-    pip3_install_packages('git+https://github.com/fkie-cad/fact_helper_file.git')
+    pip3_install_packages('git+https://gitee.com/litinghui/fact_helper_file.git')
+    # pip3_install_packages('git+https://github.com/fkie-cad/fact_helper_file.git')
     pip3_install_packages('psutil')
     pip3_install_packages('pytest==3.5.1', 'pytest-cov', 'pytest-flake8', 'pylint', 'python-magic', 'xmltodict', 'yara-python==3.7.0', 'appdirs')
     pip3_install_packages('ssdeep')
@@ -77,11 +78,16 @@ def main(distribution):  # pylint: disable=too-many-statements
 
     #  installing common code modules
     pip3_install_packages('hurry.filesize')
-    pip3_install_packages('git+https://github.com/fkie-cad/common_helper_files.git')
-    pip3_install_packages('git+https://github.com/fkie-cad/common_helper_mongo.git')
-    pip3_install_packages('git+https://github.com/mass-project/common_helper_encoder.git')
-    pip3_install_packages('git+https://github.com/fkie-cad/common_helper_filter.git')
-    pip3_install_packages('git+https://github.com/fkie-cad/common_helper_process.git')
+    pip3_install_packages('git+https://gitee.com/litinghui/common_helper_files.git')
+    pip3_install_packages('git+https://gitee.com/litinghui/common_helper_mongo.git')
+    pip3_install_packages('git+https://gitee.com/litinghui/common_helper_encoder.git')
+    pip3_install_packages('git+https://gitee.com/litinghui/common_helper_filter.git')
+    pip3_install_packages('git+https://gitee.com/litinghui/common_helper_process.git')
+    # pip3_install_packages('git+https://github.com/fkie-cad/common_helper_files.git')
+    # pip3_install_packages('git+https://github.com/fkie-cad/common_helper_mongo.git')
+    # pip3_install_packages('git+https://github.com/mass-project/common_helper_encoder.git')
+    # pip3_install_packages('git+https://github.com/fkie-cad/common_helper_filter.git')
+    # pip3_install_packages('git+https://github.com/fkie-cad/common_helper_process.git')
 
     with OperateInDirectory('../../'):
         with suppress(FileNotFoundError):

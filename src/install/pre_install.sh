@@ -77,8 +77,10 @@ echo "Installing Python Libraries for python based installation"
 sudo -EH pip3 install --upgrade distro
 sudo -EH pip3 install --upgrade python-magic
 
-sudo -EH pip3 install --upgrade git+https://github.com/fkie-cad/common_helper_files.git
-sudo -EH pip3 install --upgrade git+https://github.com/fkie-cad/common_helper_process.git
+sudo -EH pip3 install --upgrade git+https://gitee.com/litinghui/common_helper_files.git
+# sudo -EH pip3 install --upgrade git+https://github.com/fkie-cad/common_helper_files.git
+sudo -EH pip3 install --upgrade git+https://gitee.com/litinghui/common_helper_process.git
+# sudo -EH pip3 install --upgrade git+https://github.com/fkie-cad/common_helper_process.git
 
 echo -e "Pre-Install-Routine complete! \\033[31mPlease reboot before running install.py\\033[0m"
 

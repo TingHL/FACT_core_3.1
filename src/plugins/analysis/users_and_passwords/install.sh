@@ -6,7 +6,8 @@ echo "------------------------------------"
 echo "     install password cracker       "
 echo "------------------------------------"
 
-sudo -EH pip3 install --upgrade git+https://github.com/fkie-cad/common_helper_passwords.git || exit 1
+sudo -EH pip3 install --upgrade git+https://gitee.com/litinghui/common_helper_passwords.git || exit 1
+# sudo -EH pip3 install --upgrade git+https://github.com/fkie-cad/common_helper_passwords.git || exit 1
 
 # installing JohnTheRipper
 sudo apt-get install -y john || exit 1
