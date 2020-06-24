@@ -106,33 +106,40 @@ def _install_css_and_js_files():
         
         wget_static_web_content('http://112.126.82.245/files/3.3.9', '.', ['unzip 3.3.9', 'rm 3.3.9', 'rm -rf ./web_js/jstree/vakata*', 'mv vakata* web_js/jstree'], 'jstree')        
         # wget_static_web_content('https://github.com/vakata/jstree/zipball/3.3.9', '.', ['unzip 3.3.9', 'rm 3.3.9', 'rm -rf ./web_js/jstree/vakata*', 'mv vakata* web_js/jstree'], 'jstree')        
-        # wget_static_web_content('https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js', '.', [], 'angularJS')
         wget_static_web_content('http://112.126.82.245/files/angular.min.js', '.', [], 'angularJS')
-        # wget_static_web_content('https://github.com/chartjs/Chart.js/releases/download/v2.3.0/Chart.js', '.', [], 'charts.js')
+        # wget_static_web_content('https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js', '.', [], 'angularJS')
         wget_static_web_content('http://112.126.82.245/files/Chart.js', '.', [], 'charts.js')
-
+        # wget_static_web_content('https://github.com/chartjs/Chart.js/releases/download/v2.3.0/Chart.js', '.', [], 'charts.js')
+        
         _build_highlight_js()
 
         for css_url in [
                 'http://112.126.82.245/files/bootstrap.min.css',
-                'https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css',
-                'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.standalone.css'
+                # 'https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css',
+                'http://112.126.82.245/files/bootstrap-datepicker.standalone.css',
+                # 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.standalone.css'
         ]:
             wget_static_web_content(css_url, 'web_css', [])
 
         for js_url in [
-                'https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.1/jquery.min.js',
-                'https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js',
-                'https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js',
-                'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.js',
-                # 'https://raw.githubusercontent.com/moment/moment/develop/moment.js'
+                'http://112.126.82.245/files/jquery.min.js',
+                # 'https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.1/jquery.min.js',
+                'http://112.126.82.245/files/popper.min.js',
+                # 'https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js',
+                'http://112.126.82.245/files/bootstrap.min.js',
+                # 'https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js',
+                'http://112.126.82.245/files/bootstrap-datepicker.js',
+                # 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.js',
                 'http://112.126.82.245/files/moment.js'
+                # 'https://raw.githubusercontent.com/moment/moment/develop/moment.js'
+                
         ]:
             wget_static_web_content(js_url, 'web_js', [])
 
         if not Path('web_css/fontawesome').exists():
             wget_static_web_content(
-                'https://use.fontawesome.com/releases/v5.13.0/fontawesome-free-5.13.0-web.zip',
+                'http://112.126.82.245/files/fontawesome-free-5.13.0-web.zip',
+                # 'https://use.fontawesome.com/releases/v5.13.0/fontawesome-free-5.13.0-web.zip',
                 '.',
                 [
                     'unzip fontawesome-free-5.13.0-web.zip',
@@ -143,7 +150,8 @@ def _install_css_and_js_files():
 
         if not Path('bootstrap3-editable').exists():
             wget_static_web_content(
-                'https://vitalets.github.io/x-editable/assets/zip/bootstrap3-editable-1.5.1.zip',
+                'http://112.126.82.245/files/bootstrap3-editable-1.5.1.zip',
+                # 'https://vitalets.github.io/x-editable/assets/zip/bootstrap3-editable-1.5.1.zip',
                 '.',
                 ['unzip -o bootstrap3-editable-1.5.1.zip',
                  'rm bootstrap3-editable-1.5.1.zip CHANGELOG.txt LICENSE-MIT README.md',
