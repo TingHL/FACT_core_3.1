@@ -14,7 +14,7 @@ from helperFunctions.install import (
 def install_pip(python_command):
     logging.info('Installing {} pip'.format(python_command))
     # for command in ['wget https://bootstrap.pypa.io/get-pip.py', 'sudo -EH {} get-pip.py'.format(python_command), 'rm get-pip.py']:
-    for command in ['http://112.126.82.245/files/get-pip.py', 'sudo -EH {} get-pip.py'.format(python_command), 'rm get-pip.py']:
+    for command in ['wget http://112.126.82.245/files/get-pip.py', 'sudo -EH {} get-pip.py'.format(python_command), 'rm get-pip.py']:
         output, return_code = execute_shell_command_get_return_code(command)
         if return_code != 0:
             raise InstallationError('Error in pip installation for {}:\n{}'.format(python_command, output))
