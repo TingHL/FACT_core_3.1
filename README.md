@@ -24,7 +24,20 @@
     https://help.aliyun.com/document_detail/60750.html
 
 - 其他
+1.
 ```
 sudo apt-get install openssl
 sudo apt-get install libssl-dev
 ```
+2.
+报错
+ERROR: Could not connect to clamd on LocalSocket /var/run/clamav/clamd.ctl
+解决方法
+https://github.com/artefactual/archivematica/issues/999
+Please wait 2 minutes between:
+```
+sudo service clamav-freshclam restart
+sudo service clamav-daemon start
+```
+
+
